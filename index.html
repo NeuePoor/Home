@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Contacts - ApparEdit v1.0.3</title>
+    
+    <link id="dynamic-favicon" rel="icon" type="image/webp" href="">
+    <link id="dynamic-apple-icon" rel="apple-touch-icon" href="">
+
+    <style>
+        /* ApparEdit v1.0.3 
+           Contacts 子页面逻辑 - 极简排版与动态背景
+        */
+
+        :root {
+            --bg-color: #ffffff;    
+            --text-color: #000000;  
+            --border-color: #efefef;
+            --muted-color: #999999; 
+            --nav-h: 28px; 
+            --side-padding: 20px; 
+            --nav-footer-padding: 10px; 
+
+            /* 动态配置变量 */
+            --primary-font: "Arial";
+            --logo-size: 21px;
+            --nav-link-size: 12px;
+            --item-title-size: 14px; 
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #000000;
+                --text-color: #ffffff;
+                --border-color: #111111;
+                --muted-color: #666666;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--primary-font), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-h);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--nav-footer-padding);
+            background-color: transparent;
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .brand, .nav-links, #menu-toggle {
+            pointer-events: auto;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+
+        nav.scrolled { mix-blend-mode: difference; }
+        nav.scrolled .brand, nav.scrolled .nav-links, nav.scrolled #menu-toggle { color: #ffffff !important; }
+
+        .brand { font-weight: 600; font-size: var(--logo-size); letter-spacing: -0.02em; }
+        .nav-links { display: none; gap: 12px; font-size: var(--nav-link-size); font-weight: 600; }
+        @media (min-width: 768px) { .nav-links { display: flex; } }
+        .nav-links a { text-decoration: none; color: inherit; transition: opacity 0.3s; }
+        .nav-links a:hover { opacity: 0.5; }
+
+        #menu-toggle {
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-end;
+            gap: 5px; background: none; border: none; cursor: pointer; width: 32px; height: var(--nav-h);
+        }
+        #menu-toggle span { width: 18px; height: 1px; background-color: currentColor; transition: 0.3s; }
+        @media (min-width: 768px) { #menu-toggle { display: none; } }
+
+        /* 移动端菜单 */
+        #mobile-menu {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: var(--bg-color); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            gap: 30px; visibility: hidden; opacity: 0; transition: 0.3s ease;
+        }
+        #mobile-menu.active { visibility: visible; opacity: 1; }
+        #mobile-menu a { font-size: 16px; text-decoration: none; color: var(--text-color); font-weight: 600; }
+
+        /* 内容区 */
+        main {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px var(--side-padding);
+            z-index: 1;
+        }
+
+        #bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-video { width: 100%; height: 100%; object-fit: cover; }
+        .bg-gradient {
+            width: 100%; height: 100%;
+            background: linear-gradient(45deg, #f3f3f3, #ffffff, #e9e9e9);
+            background-size: 400% 400%;
+            animation: gradientAnim 15s ease infinite;
+        }
+
+        @keyframes gradientAnim {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .contacts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .contact-item {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: var(--item-title-size);
+            padding: 10px;
+            letter-spacing: 0.05em;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            font-weight: 500;
+        }
+
+        .contact-item:hover { opacity: 0.4; transform: translateY(-2px); }
+
+        /* 页脚布局优化 */
+        footer {
+            padding: 30px var(--nav-footer-padding);
+            display: flex;
+            flex-direction: column; 
+            gap: 20px;
+            background-color: transparent;
+            z-index: 10;
+        }
+
+        @media (min-width: 768px) {
+            footer { 
+                flex-direction: row; 
+                justify-content: space-between; 
+                align-items: flex-end; 
+                padding: 40px var(--nav-footer-padding); 
+            }
+        }
+
+        .copyright { font-size: 11px; color: var(--muted-color); letter-spacing: 0.02em; line-height: 1.4; }
+        .copyright a { text-decoration: none; color: inherit; }
+        
+        /* 右侧信息区域 */
+        .footer-extra {
+            font-size: 10px;
+            color: var(--muted-color);
+            letter-spacing: 0.01em;
+            line-height: 1.5; /* 适中的行高以配合中英文混排 */
+            text-align: center;
+            text-transform: uppercase;
+        }
+        @media (min-width: 768px) {
+            .footer-extra { text-align: right; }
+        }
+
+        ::-webkit-scrollbar { display: none; } 
+    </style>
+</head>
+<body>
+
+    <nav id="main-nav">
+        <a href="#" class="brand" id="site-logo"></a>
+        <div class="nav-links" id="desktop-links"></div>
+        <button id="menu-toggle" aria-label="Menu">
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <div id="mobile-menu"></div>
+
+    <main>
+        <div id="bg-container"></div>
+        <div id="contacts-container" class="contacts-list"></div>
+    </main>
+
+    <footer>
+        <div class="copyright">
+            &copy; <span id="year"></span> <a href="#" id="footer-logo-link"><span id="footer-copy-text"></span></a>
+        </div>
+        <div class="footer-extra" id="footer-extra-info"></div>
+    </footer>
+
+    <script>
+        /**
+         * ==========================================
+         * 小白维护区
+         * ==========================================
+         */
+        
+        const UI_CONFIG = {
+            primaryFont: "Helvetica", 
+            logoSize: "21px",      
+            navLinksSize: "12px",  
+            itemTitleSize: "13px"
+        };
+
+        const CONFIG = {
+            pageTitle: "Contacts", 
+            logoText: "PoorLegalGuy", 
+            logoUrl: "https://neuepoor.com", 
+            footerText: "PoorLegalGuy Contacts",      
+            footerUrl: "https://neuepoor.com",
+            // 页脚右侧换行文字内容：英文一行，中文一行
+            footerExtra: "Work, Consumerism & NeuePoor\n工作/消费/新穷人",
+            faviconUrl: "https://cdn.neuepoor.com/apparedit/image-035296a5-5b03-42bd-91b5-4fb17d40b48c.webp",
+            currentPageUrl: "https://contacts.neuepoor.com", 
+            videoUrl: "", 
+            links: [ 
+                { name: "C", url: "https://neuepoor.com/library" },
+                { name: "N", url: "https://neuepoor.com/" },
+                { name: "Y", url: "https://contacts.neuepoor.com" }
+            ]
+        };
+
+        const CONTACTS_DATA = [
+            { name: "Email", url: "mailto:yourname@example.com" },
+            { name: "Instagram", url: "https://instagram.com/" },
+            { name: "Discord", url: "https://discord.com/" },
+            { name: "Github", url: "https://github.com/" },
+            { name: "RedBook", url: "https://www.xiaohongshu.com/" },
+            { name: "WechatBlog", url: "#" },
+            { name: "Prodecer", url: "#" }
+        ];
+
+        /** * ==========================================
+         * 系统核心逻辑
+         * ==========================================
+         */
+
+        const mainNav = document.getElementById('main-nav');
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) mainNav.classList.add('scrolled');
+            else mainNav.classList.remove('scrolled');
+        });
+
+        function toggleMenu() {
+            const isActive = mobileMenu.classList.toggle('active');
+            const spans = menuToggle.querySelectorAll('span');
+            if(isActive) {
+                spans[0].style.transform = "rotate(45deg) translateY(4px)";
+                spans[1].style.transform = "rotate(-45deg) translateY(-4px)";
+                document.body.style.overflow = 'hidden';
+            } else {
+                spans[0].style.transform = "none";
+                spans[1].style.transform = "none";
+                document.body.style.overflow = '';
+            }
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+
+        function renderContacts() {
+            const container = document.getElementById('contacts-container');
+            container.innerHTML = "";
+            CONTACTS_DATA.forEach(item => {
+                const link = document.createElement('a');
+                link.href = item.url;
+                link.className = "contact-item";
+                link.innerText = item.name;
+                container.appendChild(link);
+            });
+        }
+
+        function renderBackground() {
+            const bgContainer = document.getElementById('bg-container');
+            if (CONFIG.videoUrl) {
+                bgContainer.innerHTML = `
+                    <video class="bg-video" autoplay loop muted playsinline>
+                        <source src="${CONFIG.videoUrl}" type="video/mp4">
+                    </video>`;
+            } else {
+                bgContainer.innerHTML = `<div class="bg-gradient"></div>`;
+            }
+        }
+
+        function applyDynamicUI() {
+            const root = document.documentElement;
+            root.style.setProperty('--primary-font', UI_CONFIG.primaryFont);
+            root.style.setProperty('--logo-size', UI_CONFIG.logoSize);
+            root.style.setProperty('--nav-link-size', UI_CONFIG.navLinksSize);
+            root.style.setProperty('--item-title-size', UI_CONFIG.itemTitleSize);
+        }
+
+        function init() {
+            applyDynamicUI(); 
+            document.title = CONFIG.pageTitle;
+
+            const favEl = document.getElementById('dynamic-favicon');
+            const appleFavEl = document.getElementById('dynamic-apple-icon');
+            if(favEl) favEl.href = CONFIG.faviconUrl;
+            if(appleFavEl) appleFavEl.href = CONFIG.faviconUrl;
+
+            document.getElementById('site-logo').innerText = CONFIG.logoText;
+            document.getElementById('site-logo').href = CONFIG.logoUrl;
+            document.getElementById('footer-copy-text').innerText = CONFIG.footerText;
+            document.getElementById('footer-logo-link').href = CONFIG.footerUrl;
+            
+            // 处理页脚换行文字
+            document.getElementById('footer-extra-info').innerText = CONFIG.footerExtra;
+
+            const desktop = document.getElementById('desktop-links');
+            const mobile = document.getElementById('mobile-menu');
+            desktop.innerHTML = ""; mobile.innerHTML = "";
+
+            CONFIG.links.forEach(link => {
+                const isCurrent = link.url === CONFIG.currentPageUrl;
+                const dLink = document.createElement('a');
+                dLink.href = link.url; dLink.innerText = link.name;
+                if(isCurrent) dLink.style.opacity = "0.3";
+                desktop.appendChild(dLink);
+
+                const mLink = document.createElement('a');
+                mLink.href = link.url; mLink.innerText = link.name;
+                mLink.onclick = toggleMenu;
+                mobile.appendChild(mLink);
+            });
+
+            document.getElementById('year').innerText = new Date().getFullYear();
+            renderContacts();
+            renderBackground();
+        }
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
