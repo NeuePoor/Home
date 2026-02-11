@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Contacts - ApparEdit v1.0.3</title>
+    <title>Contacts - ApparEdit v1.0.4</title>
     
     <link id="dynamic-favicon" rel="icon" type="image/webp" href="">
     <link id="dynamic-apple-icon" rel="apple-touch-icon" href="">
 
     <style>
-        /* ApparEdit v1.0.3 
+        /* ApparEdit v1.0.4 
            Contacts 子页面逻辑 - 极简排版与动态背景
         */
 
@@ -189,7 +189,7 @@
             font-size: 10px;
             color: var(--muted-color);
             letter-spacing: 0.01em;
-            line-height: 1.5; /* 适中的行高以配合中英文混排 */
+            line-height: 1.5; 
             text-align: center;
             text-transform: uppercase;
         }
@@ -249,7 +249,8 @@
             footerExtra: "Work, Consumerism & NeuePoor\n工作/消费/新穷人",
             faviconUrl: "https://cdn.neuepoor.com/apparedit/image-035296a5-5b03-42bd-91b5-4fb17d40b48c.webp",
             currentPageUrl: "https://contacts.neuepoor.com", 
-            videoUrl: "https://cdn.pixabay.com", 
+            // 已贴入测试视频 URL
+            videoUrl: "https://cdn.neuepoor.com/videos/contacts-bg-test.mp4", 
             links: [ 
                 { name: "C", url: "https://neuepoor.com/library" },
                 { name: "N", url: "https://neuepoor.com/" },
@@ -343,7 +344,6 @@
             document.getElementById('footer-copy-text').innerText = CONFIG.footerText;
             document.getElementById('footer-logo-link').href = CONFIG.footerUrl;
             
-            // 处理页脚换行文字
             document.getElementById('footer-extra-info').innerText = CONFIG.footerExtra;
 
             const desktop = document.getElementById('desktop-links');
