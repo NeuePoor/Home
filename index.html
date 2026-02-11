@@ -10,7 +10,7 @@
 
     <style>
         /* ApparEdit v1.0.4 
-           Contacts 子页面逻辑 - 极简排版与动态背景
+           Contacts 子页面逻辑 - 优化视频载入与双行页脚排版
         */
 
         :root {
@@ -125,9 +125,18 @@
             height: 100%;
             z-index: -1;
             overflow: hidden;
+            background-color: var(--bg-color);
         }
 
-        .bg-video { width: 100%; height: 100%; object-fit: cover; }
+        .bg-video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            opacity: 0; /* 默认隐藏，加载成功后淡入 */
+            transition: opacity 1.2s ease-in-out;
+        }
+        .bg-video.playing { opacity: 1; }
+
         .bg-gradient {
             width: 100%; height: 100%;
             background: linear-gradient(45deg, #f3f3f3, #ffffff, #e9e9e9);
@@ -162,7 +171,7 @@
 
         .contact-item:hover { opacity: 0.4; transform: translateY(-2px); }
 
-        /* 页脚布局优化 */
+        /* 页脚 */
         footer {
             padding: 30px var(--nav-footer-padding);
             display: flex;
@@ -184,14 +193,15 @@
         .copyright { font-size: 11px; color: var(--muted-color); letter-spacing: 0.02em; line-height: 1.4; }
         .copyright a { text-decoration: none; color: inherit; }
         
-        /* 右侧信息区域 */
+        /* 页脚右侧：英文一行，中文一行 */
         .footer-extra {
             font-size: 10px;
             color: var(--muted-color);
             letter-spacing: 0.01em;
-            line-height: 1.5; 
+            line-height: 1.6;
             text-align: center;
             text-transform: uppercase;
+            white-space: pre-line; /* 识别 \n 换行 */
         }
         @media (min-width: 768px) {
             .footer-extra { text-align: right; }
@@ -245,12 +255,12 @@
             logoUrl: "https://neuepoor.com", 
             footerText: "PoorLegalGuy Contacts",      
             footerUrl: "https://neuepoor.com",
-            // 页脚右侧换行文字内容：英文一行，中文一行
+            // 页脚右侧：英文一行，中文一行
             footerExtra: "Work, Consumerism & NeuePoor\n工作/消费/新穷人",
             faviconUrl: "https://cdn.neuepoor.com/apparedit/image-035296a5-5b03-42bd-91b5-4fb17d40b48c.webp",
             currentPageUrl: "https://contacts.neuepoor.com", 
-            // 已贴入测试视频 URL
-            videoUrl: "https://cdn.neuepoor.com/videos/contacts-bg-test.mp4", 
+            // 贴入你的视频 URL
+            videoUrl: "https://cdn.neuepoor.com/punkboyz.mp4", 
             links: [ 
                 { name: "C", url: "https://neuepoor.com/library" },
                 { name: "N", url: "https://neuepoor.com/" },
@@ -259,13 +269,13 @@
         };
 
         const CONTACTS_DATA = [
-            { name: "Email", url: "mailto:yourname@example.com" },
-            { name: "Instagram", url: "https://instagram.com/" },
-            { name: "Discord", url: "https://discord.com/" },
-            { name: "Github", url: "https://github.com/" },
-            { name: "RedBook", url: "https://www.xiaohongshu.com/" },
+            { name: "Email", url: "mailto:hello@neuepoor.com" },
+            { name: "Instagram", url: "#" },
+            { name: "Discord", url: "#" },
+            { name: "Github", url: "#" },
+            { name: "RedBook", url: "#" },
             { name: "WechatBlog", url: "#" },
-            { name: "Prodecer", url: "#" }
+            { name: "Producer", url: "#" }
         ];
 
         /** * ==========================================
@@ -313,10 +323,27 @@
         function renderBackground() {
             const bgContainer = document.getElementById('bg-container');
             if (CONFIG.videoUrl) {
-                bgContainer.innerHTML = `
-                    <video class="bg-video" autoplay loop muted playsinline>
-                        <source src="${CONFIG.videoUrl}" type="video/mp4">
-                    </video>`;
+                const video = document.createElement('video');
+                video.className = "bg-video";
+                video.muted = true;
+                video.loop = true;
+                video.autoplay = true;
+                video.playsInline = true;
+                video.setAttribute('muted', ''); // 强制属性静音以触发自动播放
+
+                // 播放成功后再淡入，避免白闪
+                video.onplaying = () => video.classList.add('playing');
+                
+                video.onerror = () => {
+                    console.warn("Video failed to load, using gradient.");
+                    bgContainer.innerHTML = `<div class="bg-gradient"></div>`;
+                };
+
+                const source = document.createElement('source');
+                source.src = CONFIG.videoUrl;
+                source.type = "video/mp4";
+                video.appendChild(source);
+                bgContainer.appendChild(video);
             } else {
                 bgContainer.innerHTML = `<div class="bg-gradient"></div>`;
             }
