@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- Dynamic SEO settings will be injected by script -->
+    <!-- SEO 设置将由脚本注入 -->
     <title></title>
     <meta name="description" content="">
     <meta name="keywords" content="">
@@ -13,8 +13,8 @@
     <link id="dynamic-apple-icon" rel="apple-touch-icon" href="">
 
     <style>
-        /* ApparEdit v1.1.4 
-           Maintenance version - Restored Video/GIF fallback to 3s for better stability
+        /* ApparEdit v1.2.0
+           Maintenance version - Added Responsive Configs (Desktop vs Mobile)
         */
 
         :root {
@@ -26,7 +26,7 @@
             --side-padding: 20px; 
             --nav-footer-padding: 10px; 
 
-            /* Dynamic style placeholders */
+            /* 动态样式占位符 */
             --primary-font: "Arial";
             --logo-size: 21px; --logo-weight: 600; --logo-color: #ffffff;
             --nav-link-size: 12px; --nav-link-weight: 600; --nav-link-color: #ffffff;
@@ -55,18 +55,15 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             overflow-x: hidden;
         }
 
-        /* Nav UI */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-h);
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 var(--nav-footer-padding); z-index: 10000; 
-            pointer-events: none;
-            mix-blend-mode: difference; 
+            pointer-events: none; mix-blend-mode: difference; 
         }
         .brand, .nav-links, #menu-toggle { pointer-events: auto; text-decoration: none; }
         
@@ -112,10 +109,14 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; overflow: hidden; background-color: var(--bg-color);
         }
+        
         .bg-video, .bg-fallback-gif { 
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; object-fit: cover; 
-            opacity: 0; transition: opacity 1.5s; 
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%; min-height: 100%;
+            width: auto; height: auto;
+            object-fit: cover; opacity: 0; 
+            transition: opacity 1.5s; 
         }
         .bg-video.playing, .bg-fallback-gif.active { opacity: 1; }
         
@@ -143,19 +144,15 @@
 
         footer { 
             padding: 0 var(--nav-footer-padding) 6px var(--nav-footer-padding); 
-            display: flex; flex-direction: column; 
-            gap: 4px; z-index: 10; 
-            text-align: center; align-items: center;
-            margin-bottom: 4px; 
+            display: flex; flex-direction: column; gap: 4px; z-index: 10; 
+            text-align: center; align-items: center; margin-bottom: 4px; 
         }
         
         @media (min-width: 768px) { 
             footer { 
                 flex-direction: row-reverse; justify-content: space-between; 
-                align-items: flex-end; 
-                padding: 0 var(--nav-footer-padding) 8px var(--nav-footer-padding); 
-                gap: 20px;
-                margin-bottom: 0;
+                align-items: flex-end; padding: 0 var(--nav-footer-padding) 8px var(--nav-footer-padding); 
+                gap: 20px; margin-bottom: 0;
             } 
         }
 
@@ -200,51 +197,44 @@
     <script>
         /**
          * ==========================================
-         * 小白维护区 (APP_DATA)
+         * 小白配置区 (APP_DATA)
          * ==========================================
          */
         const APP_DATA = {
-            // 1. SEO 设置
+            // 1. SEO & 资源
             seo: {
                 title: "PoorLegalGuy Contacts | Work, Consumerism & NeuePoor",
-                description: "Official contact list and portal for PoorLegalGuy. Exploring themes of work, consumerism, and the new poor.",
-                keywords: "PoorLegalGuy, Contacts, NeuePoor, Design, Art, Consumerism",
-                ogImage: "https://cdn.neuepoor.com/apparedit/og-image.jpg", 
+                description: "Official contact list and portal for PoorLegalGuy.",
+                keywords: "PoorLegalGuy, Contacts, NeuePoor, Design, Art",
                 favicon: "https://cdn.neuepoor.com/apparedit/image-035296a5-5b03-42bd-91b5-4fb17d40b48c.webp",
             },
 
-            // 2. 全局配置
-            global: {
-                fontFamily: "Helvetica, Arial, sans-serif",
+            // 2. 宽屏模式 (桌面端 Desktop)
+            desktop: {
+                logo: { size: "21px", weight: "600", color: "#ffffff" },
+                nav: { size: "12px", weight: "600", color: "#ffffff" },
+                contacts: { size: "13px", weight: "500", color: "#000000" },
+                footer: { size: "11px", color: "#999999" }
             },
 
-            // 3. Logo 配置
-            logo: {
-                text: "PoorLegalGuy",
-                url: "https://neuepoor.com",
-                size: "21px",
-                weight: "600",
-                color: "#ffffff" 
+            // 3. 窄屏模式 (手机端 Mobile)
+            mobile: {
+                logo: { size: "18px", weight: "700", color: "#ffffff" },
+                nav: { size: "14px", weight: "600", color: "#ffffff" },
+                contacts: { size: "15px", weight: "600", color: "#000000" },
+                footer: { size: "10px", color: "#999999" }
             },
 
-            // 4. 导航配置
-            nav: {
-                size: "12px",
-                weight: "600",
-                color: "#ffffff",
-                links: [
+            // 4. 内容配置
+            content: {
+                logoText: "PoorLegalGuy",
+                logoUrl: "https://neuepoor.com",
+                navLinks: [
                     { name: "C", url: "https://neuepoor.com/library" },
                     { name: "N", url: "https://neuepoor.com/" },
                     { name: "Y", url: "https://contacts.neuepoor.com" }
-                ]
-            },
-
-            // 5. 联系人列表配置
-            contacts: {
-                size: "13px",
-                weight: "500",
-                color: "", 
-                items: [
+                ],
+                contactItems: [
                     { name: "Email", url: "mailto:hello@neuepoor.com" },
                     { name: "Instagram", url: "#" },
                     { name: "Discord", url: "#" },
@@ -252,23 +242,18 @@
                     { name: "RedBook", url: "#" },
                     { name: "WechatBlog", url: "#" },
                     { name: "Producer", url: "#" }
-                ]
+                ],
+                footer: {
+                    copyText: "PoorLegalGuy Contacts",
+                    copyUrl: "https://neuepoor.com",
+                    extraText: "Work, Consumerism & NeuePoor\n工作/消费/新穷人"
+                }
             },
 
-            // 6. 页脚配置
-            footer: {
-                copyText: "PoorLegalGuy Contacts",
-                copyUrl: "https://neuepoor.com",
-                extraText: "Work, Consumerism & NeuePoor\n工作/消费/新穷人",
-                size: "11px",
-                color: "#999999" 
-            },
-
-            // 7. 背景资源
+            // 5. 背景资源
             background: {
                 videoUrl: "https://cdn.neuepoor.com/punkboyz.mp4",
-                gifUrl: "https://cdn.neuepoor.com/punkboyz.gif", // 微信环境回退动图
-                enableCompatibilityMode: true
+                gifUrl: "https://cdn.neuepoor.com/punkboyz.gif"
             }
         };
 
@@ -278,54 +263,46 @@
          * ==========================================
          */
 
-        function applyConfigs() {
+        function updateResponsiveStyles() {
             const root = document.documentElement;
-            
-            // 应用 SEO
-            document.title = APP_DATA.seo.title;
-            const metaDesc = document.querySelector('meta[name="description"]') || document.createElement('meta');
-            metaDesc.name = "description"; metaDesc.content = APP_DATA.seo.description;
-            document.head.appendChild(metaDesc);
-            
-            const metaKey = document.querySelector('meta[name="keywords"]') || document.createElement('meta');
-            metaKey.name = "keywords"; metaKey.content = APP_DATA.seo.keywords;
-            document.head.appendChild(metaKey);
+            const isMobile = window.innerWidth < 768;
+            const config = isMobile ? APP_DATA.mobile : APP_DATA.desktop;
 
+            // 应用动态变量
+            root.style.setProperty('--logo-size', config.logo.size);
+            root.style.setProperty('--logo-weight', config.logo.weight);
+            root.style.setProperty('--logo-color', config.logo.color);
+            
+            root.style.setProperty('--nav-link-size', config.nav.size);
+            root.style.setProperty('--nav-link-weight', config.nav.weight);
+            root.style.setProperty('--nav-link-color', config.nav.color);
+
+            root.style.setProperty('--item-title-size', config.contacts.size);
+            root.style.setProperty('--item-title-weight', config.contacts.weight);
+            root.style.setProperty('--item-title-color', config.contacts.color);
+
+            root.style.setProperty('--footer-size', config.footer.size);
+            root.style.setProperty('--footer-color', config.footer.color);
+        }
+
+        function initContent() {
+            // SEO
+            document.title = APP_DATA.seo.title;
             document.getElementById('dynamic-favicon').href = APP_DATA.seo.favicon;
             document.getElementById('dynamic-apple-icon').href = APP_DATA.seo.favicon;
 
-            // 应用 CSS 变量
-            root.style.setProperty('--primary-font', APP_DATA.global.fontFamily);
-            
-            // Logo 样式
-            root.style.setProperty('--logo-size', APP_DATA.logo.size);
-            root.style.setProperty('--logo-weight', APP_DATA.logo.weight);
-            root.style.setProperty('--logo-color', APP_DATA.logo.color);
-            document.getElementById('site-logo').innerText = APP_DATA.logo.text;
-            document.getElementById('site-logo').href = APP_DATA.logo.url;
-
-            // 导航样式
-            root.style.setProperty('--nav-link-size', APP_DATA.nav.size);
-            root.style.setProperty('--nav-link-weight', APP_DATA.nav.weight);
-            root.style.setProperty('--nav-link-color', APP_DATA.nav.color);
-
-            // 触点列表样式
-            root.style.setProperty('--item-title-size', APP_DATA.contacts.size);
-            root.style.setProperty('--item-title-weight', APP_DATA.contacts.weight);
-            if(APP_DATA.contacts.color) root.style.setProperty('--item-title-color', APP_DATA.contacts.color);
-
-            // 页脚样式
-            root.style.setProperty('--footer-size', APP_DATA.footer.size);
-            root.style.setProperty('--footer-color', APP_DATA.footer.color);
+            // Logo & Footer Text
+            document.getElementById('site-logo').innerText = APP_DATA.content.logoText;
+            document.getElementById('site-logo').href = APP_DATA.content.logoUrl;
             document.getElementById('year').innerText = new Date().getFullYear();
-            document.getElementById('footer-copy-text').innerText = APP_DATA.footer.copyText;
-            document.getElementById('footer-logo-link').href = APP_DATA.footer.copyUrl;
-            document.getElementById('footer-extra-info').innerText = APP_DATA.footer.extraText;
+            document.getElementById('footer-copy-text').innerText = APP_DATA.content.footer.copyText;
+            document.getElementById('footer-logo-link').href = APP_DATA.content.footer.copyUrl;
+            document.getElementById('footer-extra-info').innerText = APP_DATA.content.footer.extraText;
 
-            // 渲染链接
+            // Render Links
             const dLinks = document.getElementById('desktop-links');
             const mMenu = document.getElementById('mobile-menu');
-            APP_DATA.nav.links.forEach(link => {
+            APP_DATA.content.navLinks.forEach(link => {
                 const a = document.createElement('a');
                 a.href = link.url; a.innerText = link.name;
                 dLinks.appendChild(a.cloneNode(true));
@@ -335,31 +312,18 @@
             });
 
             const cContainer = document.getElementById('contacts-container');
-            APP_DATA.contacts.items.forEach(item => {
+            APP_DATA.content.contactItems.forEach(item => {
                 const a = document.createElement('a');
                 a.href = item.url; a.className = "contact-item"; a.innerText = item.name;
                 cContainer.appendChild(a);
             });
         }
 
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        menuToggle.onclick = () => {
-            const isActive = mobileMenu.classList.toggle('active');
-            const spans = menuToggle.querySelectorAll('span');
-            spans[0].style.transform = isActive ? "rotate(45deg) translateY(4px)" : "none";
-            spans[1].style.transform = isActive ? "rotate(-45deg) translateY(-4px)" : "none";
-            document.body.style.overflow = isActive ? 'hidden' : '';
-        };
-
-        /**
-         * 增强型背景渲染（微信优化）
-         */
+        // 背景渲染
         async function renderBackground() {
             const bgContainer = document.getElementById('bg-container');
             const { videoUrl, gifUrl } = APP_DATA.background;
             
-            // 创建回退 GIF
             let gifImg = null;
             if (gifUrl) {
                 gifImg = document.createElement('img');
@@ -373,17 +337,15 @@
                 return;
             }
 
-            // 创建视频
             const video = document.createElement('video');
             video.className = "bg-video";
             video.muted = true; video.loop = true; video.autoplay = true;
             video.setAttribute('muted', ''); 
             video.setAttribute('playsinline', 'true');
-            video.setAttribute('webkit-playsinline', 'true'); // iOS 微信特定属性
-            video.setAttribute('x5-video-player-type', 'h5-page'); // Android 微信特定属性
+            video.setAttribute('webkit-playsinline', 'true'); 
+            video.setAttribute('x5-video-player-type', 'h5-page'); 
             video.src = videoUrl;
 
-            // 监测逻辑
             let videoStarted = false;
             video.onplaying = () => {
                 videoStarted = true;
@@ -393,7 +355,6 @@
 
             bgContainer.appendChild(video);
 
-            // 方法 1：微信 JS Bridge 勾点
             const playVideoInWeChat = () => {
                 if (window.WeixinJSBridge) {
                     window.WeixinJSBridge.invoke('getNetworkType', {}, () => video.play(), false);
@@ -405,21 +366,31 @@
                 playVideoInWeChat();
             }
 
-            // 方法 2：触摸激活
             document.addEventListener('touchstart', () => {
                 if(!videoStarted) video.play();
             }, { once: true });
 
-            // 方法 3：3秒后执行回退检查
             setTimeout(() => {
-                if (!videoStarted && gifImg) {
-                    gifImg.classList.add('active');
-                }
-            }, 3000); // 恢复为 3000ms
+                if (!videoStarted && gifImg) gifImg.classList.add('active');
+            }, 3000); 
         }
 
+        // 菜单切换
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuToggle.onclick = () => {
+            const isActive = mobileMenu.classList.toggle('active');
+            const spans = menuToggle.querySelectorAll('span');
+            spans[0].style.transform = isActive ? "rotate(45deg) translateY(4px)" : "none";
+            spans[1].style.transform = isActive ? "rotate(-45deg) translateY(-4px)" : "none";
+            document.body.style.overflow = isActive ? 'hidden' : '';
+        };
+
+        window.addEventListener('resize', updateResponsiveStyles);
+
         window.onload = () => {
-            applyConfigs();
+            initContent();
+            updateResponsiveStyles();
             renderBackground();
         };
     </script>
