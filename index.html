@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- 动态 SEO 设置将由脚本注入，此处保留占位 -->
+    <!-- Dynamic SEO settings will be injected by script -->
     <title></title>
     <meta name="description" content="">
     <meta name="keywords" content="">
@@ -13,8 +13,8 @@
     <link id="dynamic-apple-icon" rel="apple-touch-icon" href="">
 
     <style>
-        /* ApparEdit v1.1.1 
-           小白友好维护版本 - 页脚间距优化，实现与导航栏视觉对称
+        /* ApparEdit v1.1.4 
+           Maintenance version - Restored Video/GIF fallback to 3s for better stability
         */
 
         :root {
@@ -26,7 +26,7 @@
             --side-padding: 20px; 
             --nav-footer-padding: 10px; 
 
-            /* 动态样式占位符 */
+            /* Dynamic style placeholders */
             --primary-font: "Arial";
             --logo-size: 21px; --logo-weight: 600; --logo-color: #ffffff;
             --nav-link-size: 12px; --nav-link-weight: 600; --nav-link-color: #ffffff;
@@ -60,7 +60,7 @@
             overflow-x: hidden;
         }
 
-        /* 导航 UI */
+        /* Nav UI */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-h);
             display: flex; justify-content: space-between; align-items: center;
@@ -112,8 +112,13 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; overflow: hidden; background-color: var(--bg-color);
         }
-        .bg-video { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s; }
-        .bg-video.playing { opacity: 1; }
+        .bg-video, .bg-fallback-gif { 
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; object-fit: cover; 
+            opacity: 0; transition: opacity 1.5s; 
+        }
+        .bg-video.playing, .bg-fallback-gif.active { opacity: 1; }
+        
         .bg-gradient {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(45deg, #f3f3f3, #ffffff, #e9e9e9);
@@ -136,14 +141,12 @@
         }
         .contact-item:hover { opacity: 0.4; transform: translateY(-2px); }
 
-        /* 页脚布局 - 优化边距以匹配导航栏 */
         footer { 
-            /* padding 设置为 0，具体由内部间距支撑，确保贴底对称 */
             padding: 0 var(--nav-footer-padding) 6px var(--nav-footer-padding); 
             display: flex; flex-direction: column; 
             gap: 4px; z-index: 10; 
             text-align: center; align-items: center;
-            margin-bottom: 4px; /* 这里的微调使其更接近 nav 在顶部的视觉空隙 */
+            margin-bottom: 4px; 
         }
         
         @media (min-width: 768px) { 
@@ -201,7 +204,7 @@
          * ==========================================
          */
         const APP_DATA = {
-            // 1. SEO 设置 (搜索引擎优化)
+            // 1. SEO 设置
             seo: {
                 title: "PoorLegalGuy Contacts | Work, Consumerism & NeuePoor",
                 description: "Official contact list and portal for PoorLegalGuy. Exploring themes of work, consumerism, and the new poor.",
@@ -210,12 +213,12 @@
                 favicon: "https://cdn.neuepoor.com/apparedit/image-035296a5-5b03-42bd-91b5-4fb17d40b48c.webp",
             },
 
-            // 2. 全局通用配置
+            // 2. 全局配置
             global: {
                 fontFamily: "Helvetica, Arial, sans-serif",
             },
 
-            // 3. Logo 分区配置
+            // 3. Logo 配置
             logo: {
                 text: "PoorLegalGuy",
                 url: "https://neuepoor.com",
@@ -224,7 +227,7 @@
                 color: "#ffffff" 
             },
 
-            // 4. 顶部导航分区配置
+            // 4. 导航配置
             nav: {
                 size: "12px",
                 weight: "600",
@@ -236,7 +239,7 @@
                 ]
             },
 
-            // 5. 中间触点列表分区配置
+            // 5. 联系人列表配置
             contacts: {
                 size: "13px",
                 weight: "500",
@@ -252,7 +255,7 @@
                 ]
             },
 
-            // 6. 页脚分区配置
+            // 6. 页脚配置
             footer: {
                 copyText: "PoorLegalGuy Contacts",
                 copyUrl: "https://neuepoor.com",
@@ -261,16 +264,17 @@
                 color: "#999999" 
             },
 
-            // 7. 多媒体背景
+            // 7. 背景资源
             background: {
                 videoUrl: "https://cdn.neuepoor.com/punkboyz.mp4",
+                gifUrl: "https://cdn.neuepoor.com/punkboyz.gif", // 微信环境回退动图
                 enableCompatibilityMode: true
             }
         };
 
         /**
          * ==========================================
-         * 系统核心逻辑 (自动化应用配置)
+         * 系统核心逻辑
          * ==========================================
          */
 
@@ -305,7 +309,7 @@
             root.style.setProperty('--nav-link-weight', APP_DATA.nav.weight);
             root.style.setProperty('--nav-link-color', APP_DATA.nav.color);
 
-            // 列表样式
+            // 触点列表样式
             root.style.setProperty('--item-title-size', APP_DATA.contacts.size);
             root.style.setProperty('--item-title-weight', APP_DATA.contacts.weight);
             if(APP_DATA.contacts.color) root.style.setProperty('--item-title-color', APP_DATA.contacts.color);
@@ -318,7 +322,7 @@
             document.getElementById('footer-logo-link').href = APP_DATA.footer.copyUrl;
             document.getElementById('footer-extra-info').innerText = APP_DATA.footer.extraText;
 
-            // 渲染动态链接
+            // 渲染链接
             const dLinks = document.getElementById('desktop-links');
             const mMenu = document.getElementById('mobile-menu');
             APP_DATA.nav.links.forEach(link => {
@@ -348,20 +352,70 @@
             document.body.style.overflow = isActive ? 'hidden' : '';
         };
 
+        /**
+         * 增强型背景渲染（微信优化）
+         */
         async function renderBackground() {
             const bgContainer = document.getElementById('bg-container');
-            if (!APP_DATA.background.videoUrl) return;
+            const { videoUrl, gifUrl } = APP_DATA.background;
+            
+            // 创建回退 GIF
+            let gifImg = null;
+            if (gifUrl) {
+                gifImg = document.createElement('img');
+                gifImg.src = gifUrl;
+                gifImg.className = "bg-fallback-gif";
+                bgContainer.appendChild(gifImg);
+            }
+
+            if (!videoUrl) {
+                if(gifImg) gifImg.classList.add('active');
+                return;
+            }
+
+            // 创建视频
             const video = document.createElement('video');
             video.className = "bg-video";
             video.muted = true; video.loop = true; video.autoplay = true;
-            video.setAttribute('muted', ''); video.setAttribute('playsinline', 'true');
-            video.src = APP_DATA.background.videoUrl;
-            video.onplaying = () => video.classList.add('playing');
+            video.setAttribute('muted', ''); 
+            video.setAttribute('playsinline', 'true');
+            video.setAttribute('webkit-playsinline', 'true'); // iOS 微信特定属性
+            video.setAttribute('x5-video-player-type', 'h5-page'); // Android 微信特定属性
+            video.src = videoUrl;
+
+            // 监测逻辑
+            let videoStarted = false;
+            video.onplaying = () => {
+                videoStarted = true;
+                video.classList.add('playing');
+                if(gifImg) gifImg.classList.remove('active');
+            };
+
             bgContainer.appendChild(video);
 
-            if (APP_DATA.background.enableCompatibilityMode) {
-                document.addEventListener('touchstart', () => video.play(), { once: true });
+            // 方法 1：微信 JS Bridge 勾点
+            const playVideoInWeChat = () => {
+                if (window.WeixinJSBridge) {
+                    window.WeixinJSBridge.invoke('getNetworkType', {}, () => video.play(), false);
+                }
+            };
+            if (typeof WeixinJSBridge === "undefined") {
+                document.addEventListener("WeixinJSBridgeReady", playVideoInWeChat, false);
+            } else {
+                playVideoInWeChat();
             }
+
+            // 方法 2：触摸激活
+            document.addEventListener('touchstart', () => {
+                if(!videoStarted) video.play();
+            }, { once: true });
+
+            // 方法 3：3秒后执行回退检查
+            setTimeout(() => {
+                if (!videoStarted && gifImg) {
+                    gifImg.classList.add('active');
+                }
+            }, 3000); // 恢复为 3000ms
         }
 
         window.onload = () => {
