@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Contacts - ApparEdit v1.0.4</title>
+    
+    <!-- 动态 SEO 设置将由脚本注入，此处保留占位 -->
+    <title></title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
     
     <link id="dynamic-favicon" rel="icon" type="image/webp" href="">
     <link id="dynamic-apple-icon" rel="apple-touch-icon" href="">
 
     <style>
-        /* ApparEdit v1.0.4 
-           Contacts 子页面逻辑 - 优化视频载入与双行页脚排版
+        /* ApparEdit v1.1.1 
+           小白友好维护版本 - 页脚间距优化，实现与导航栏视觉对称
         */
 
         :root {
@@ -22,11 +26,12 @@
             --side-padding: 20px; 
             --nav-footer-padding: 10px; 
 
-            /* 动态配置变量 */
+            /* 动态样式占位符 */
             --primary-font: "Arial";
-            --logo-size: 21px;
-            --nav-link-size: 12px;
-            --item-title-size: 14px; 
+            --logo-size: 21px; --logo-weight: 600; --logo-color: #ffffff;
+            --nav-link-size: 12px; --nav-link-weight: 600; --nav-link-color: #ffffff;
+            --item-title-size: 13px; --item-title-weight: 500; --item-title-color: #000000;
+            --footer-size: 11px; --footer-color: #999999;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -42,12 +47,11 @@
             box-sizing: border-box;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
         }
 
         body {
-            font-family: var(--primary-font), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: var(--primary-font), -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
@@ -56,34 +60,28 @@
             overflow-x: hidden;
         }
 
-        /* 导航栏 */
+        /* 导航 UI */
         nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: var(--nav-h);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 var(--nav-footer-padding);
-            background-color: transparent;
-            z-index: 10000;
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-h);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 var(--nav-footer-padding); z-index: 10000; 
             pointer-events: none;
+            mix-blend-mode: difference; 
         }
-
-        .brand, .nav-links, #menu-toggle {
-            pointer-events: auto;
-            color: var(--text-color);
-            transition: color 0.3s ease;
-            text-decoration: none;
+        .brand, .nav-links, #menu-toggle { pointer-events: auto; text-decoration: none; }
+        
+        .brand { 
+            font-weight: var(--logo-weight); 
+            font-size: var(--logo-size); 
+            color: var(--logo-color) !important;
+            letter-spacing: -0.02em; 
         }
-
-        nav.scrolled { mix-blend-mode: difference; }
-        nav.scrolled .brand, nav.scrolled .nav-links, nav.scrolled #menu-toggle { color: #ffffff !important; }
-
-        .brand { font-weight: 600; font-size: var(--logo-size); letter-spacing: -0.02em; }
-        .nav-links { display: none; gap: 12px; font-size: var(--nav-link-size); font-weight: 600; }
+        .nav-links { 
+            display: none; gap: 12px; 
+            font-size: var(--nav-link-size); 
+            font-weight: var(--nav-link-weight);
+            color: var(--nav-link-color) !important;
+        }
         @media (min-width: 768px) { .nav-links { display: flex; } }
         .nav-links a { text-decoration: none; color: inherit; transition: opacity 0.3s; }
         .nav-links a:hover { opacity: 0.5; }
@@ -91,11 +89,11 @@
         #menu-toggle {
             display: flex; flex-direction: column; justify-content: center; align-items: flex-end;
             gap: 5px; background: none; border: none; cursor: pointer; width: 32px; height: var(--nav-h);
+            color: var(--nav-link-color) !important;
         }
         #menu-toggle span { width: 18px; height: 1px; background-color: currentColor; transition: 0.3s; }
         @media (min-width: 768px) { #menu-toggle { display: none; } }
 
-        /* 移动端菜单 */
         #mobile-menu {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             background-color: var(--bg-color); z-index: 9999;
@@ -105,107 +103,69 @@
         #mobile-menu.active { visibility: visible; opacity: 1; }
         #mobile-menu a { font-size: 16px; text-decoration: none; color: var(--text-color); font-weight: 600; }
 
-        /* 内容区 */
         main {
-            position: relative;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 60px var(--side-padding);
-            z-index: 1;
+            position: relative; flex-grow: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 60px var(--side-padding); z-index: 1;
         }
 
         #bg-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            background-color: var(--bg-color);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; overflow: hidden; background-color: var(--bg-color);
         }
-
-        .bg-video { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            opacity: 0; /* 默认隐藏，加载成功后淡入 */
-            transition: opacity 1.2s ease-in-out;
-        }
+        .bg-video { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s; }
         .bg-video.playing { opacity: 1; }
-
         .bg-gradient {
-            width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(45deg, #f3f3f3, #ffffff, #e9e9e9);
-            background-size: 400% 400%;
-            animation: gradientAnim 15s ease infinite;
+            background-size: 400% 400%; animation: gradientAnim 15s ease infinite; z-index: -2;
         }
-
         @keyframes gradientAnim {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }
         }
 
         .contacts-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
+            display: flex; flex-direction: column; gap: 12px;
+            width: 100%; max-width: 400px; text-align: center;
         }
-
         .contact-item {
-            text-decoration: none;
-            color: var(--text-color);
+            text-decoration: none; 
+            color: var(--item-title-color); 
             font-size: var(--item-title-size);
-            padding: 10px;
-            letter-spacing: 0.05em;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            font-weight: 500;
+            font-weight: var(--item-title-weight);
+            padding: 10px; letter-spacing: 0.05em; transition: 0.4s;
         }
-
         .contact-item:hover { opacity: 0.4; transform: translateY(-2px); }
 
-        /* 页脚 */
-        footer {
-            padding: 30px var(--nav-footer-padding);
-            display: flex;
-            flex-direction: column; 
-            gap: 20px;
-            background-color: transparent;
-            z-index: 10;
+        /* 页脚布局 - 优化边距以匹配导航栏 */
+        footer { 
+            /* padding 设置为 0，具体由内部间距支撑，确保贴底对称 */
+            padding: 0 var(--nav-footer-padding) 6px var(--nav-footer-padding); 
+            display: flex; flex-direction: column; 
+            gap: 4px; z-index: 10; 
+            text-align: center; align-items: center;
+            margin-bottom: 4px; /* 这里的微调使其更接近 nav 在顶部的视觉空隙 */
         }
-
-        @media (min-width: 768px) {
-            footer { 
-                flex-direction: row; 
-                justify-content: space-between; 
-                align-items: flex-end; 
-                padding: 40px var(--nav-footer-padding); 
-            }
-        }
-
-        .copyright { font-size: 11px; color: var(--muted-color); letter-spacing: 0.02em; line-height: 1.4; }
-        .copyright a { text-decoration: none; color: inherit; }
         
-        /* 页脚右侧：英文一行，中文一行 */
+        @media (min-width: 768px) { 
+            footer { 
+                flex-direction: row-reverse; justify-content: space-between; 
+                align-items: flex-end; 
+                padding: 0 var(--nav-footer-padding) 8px var(--nav-footer-padding); 
+                gap: 20px;
+                margin-bottom: 0;
+            } 
+        }
+
+        .copyright { font-size: var(--footer-size); color: var(--footer-color); letter-spacing: 0.02em; order: 2; }
+        @media (min-width: 768px) { .copyright { order: unset; text-align: right; } }
+        .copyright a { text-decoration: none; color: inherit; }
+
         .footer-extra {
-            font-size: 10px;
-            color: var(--muted-color);
-            letter-spacing: 0.01em;
-            line-height: 1.6;
-            text-align: center;
-            text-transform: uppercase;
-            white-space: pre-line; /* 识别 \n 换行 */
+            font-size: var(--footer-size); color: var(--footer-color); 
+            letter-spacing: 0.01em; line-height: 1.4;
+            text-transform: uppercase; white-space: pre-line; order: 1; 
         }
-        @media (min-width: 768px) {
-            .footer-extra { text-align: right; }
-        }
+        @media (min-width: 768px) { .footer-extra { order: unset; text-align: left; } }
 
         ::-webkit-scrollbar { display: none; } 
     </style>
@@ -216,15 +176,14 @@
         <a href="#" class="brand" id="site-logo"></a>
         <div class="nav-links" id="desktop-links"></div>
         <button id="menu-toggle" aria-label="Menu">
-            <span></span>
-            <span></span>
+            <span></span><span></span>
         </button>
     </nav>
 
     <div id="mobile-menu"></div>
 
     <main>
-        <div id="bg-container"></div>
+        <div id="bg-container"><div class="bg-gradient"></div></div>
         <div id="contacts-container" class="contacts-list"></div>
     </main>
 
@@ -238,163 +197,177 @@
     <script>
         /**
          * ==========================================
-         * 小白维护区
+         * 小白维护区 (APP_DATA)
          * ==========================================
          */
-        
-        const UI_CONFIG = {
-            primaryFont: "Helvetica", 
-            logoSize: "21px",      
-            navLinksSize: "12px",  
-            itemTitleSize: "13px"
+        const APP_DATA = {
+            // 1. SEO 设置 (搜索引擎优化)
+            seo: {
+                title: "PoorLegalGuy Contacts | Work, Consumerism & NeuePoor",
+                description: "Official contact list and portal for PoorLegalGuy. Exploring themes of work, consumerism, and the new poor.",
+                keywords: "PoorLegalGuy, Contacts, NeuePoor, Design, Art, Consumerism",
+                ogImage: "https://cdn.neuepoor.com/apparedit/og-image.jpg", 
+                favicon: "https://cdn.neuepoor.com/apparedit/image-035296a5-5b03-42bd-91b5-4fb17d40b48c.webp",
+            },
+
+            // 2. 全局通用配置
+            global: {
+                fontFamily: "Helvetica, Arial, sans-serif",
+            },
+
+            // 3. Logo 分区配置
+            logo: {
+                text: "PoorLegalGuy",
+                url: "https://neuepoor.com",
+                size: "21px",
+                weight: "600",
+                color: "#ffffff" 
+            },
+
+            // 4. 顶部导航分区配置
+            nav: {
+                size: "12px",
+                weight: "600",
+                color: "#ffffff",
+                links: [
+                    { name: "C", url: "https://neuepoor.com/library" },
+                    { name: "N", url: "https://neuepoor.com/" },
+                    { name: "Y", url: "https://contacts.neuepoor.com" }
+                ]
+            },
+
+            // 5. 中间触点列表分区配置
+            contacts: {
+                size: "13px",
+                weight: "500",
+                color: "", 
+                items: [
+                    { name: "Email", url: "mailto:hello@neuepoor.com" },
+                    { name: "Instagram", url: "#" },
+                    { name: "Discord", url: "#" },
+                    { name: "Github", url: "#" },
+                    { name: "RedBook", url: "#" },
+                    { name: "WechatBlog", url: "#" },
+                    { name: "Producer", url: "#" }
+                ]
+            },
+
+            // 6. 页脚分区配置
+            footer: {
+                copyText: "PoorLegalGuy Contacts",
+                copyUrl: "https://neuepoor.com",
+                extraText: "Work, Consumerism & NeuePoor\n工作/消费/新穷人",
+                size: "11px",
+                color: "#999999" 
+            },
+
+            // 7. 多媒体背景
+            background: {
+                videoUrl: "https://cdn.neuepoor.com/punkboyz.mp4",
+                enableCompatibilityMode: true
+            }
         };
 
-        const CONFIG = {
-            pageTitle: "Contacts", 
-            logoText: "PoorLegalGuy", 
-            logoUrl: "https://neuepoor.com", 
-            footerText: "PoorLegalGuy Contacts",      
-            footerUrl: "https://neuepoor.com",
-            // 页脚右侧：英文一行，中文一行
-            footerExtra: "Work, Consumerism & NeuePoor\n工作/消费/新穷人",
-            faviconUrl: "https://cdn.neuepoor.com/apparedit/image-035296a5-5b03-42bd-91b5-4fb17d40b48c.webp",
-            currentPageUrl: "https://contacts.neuepoor.com", 
-            // 贴入你的视频 URL
-            videoUrl: "https://cdn.neuepoor.com/punkboyz.mp4", 
-            links: [ 
-                { name: "C", url: "https://neuepoor.com/library" },
-                { name: "N", url: "https://neuepoor.com/" },
-                { name: "Y", url: "https://contacts.neuepoor.com" }
-            ]
-        };
-
-        const CONTACTS_DATA = [
-            { name: "Email", url: "mailto:hello@neuepoor.com" },
-            { name: "Instagram", url: "#" },
-            { name: "Discord", url: "#" },
-            { name: "Github", url: "#" },
-            { name: "RedBook", url: "#" },
-            { name: "WechatBlog", url: "#" },
-            { name: "Producer", url: "#" }
-        ];
-
-        /** * ==========================================
-         * 系统核心逻辑
+        /**
+         * ==========================================
+         * 系统核心逻辑 (自动化应用配置)
          * ==========================================
          */
 
-        const mainNav = document.getElementById('main-nav');
+        function applyConfigs() {
+            const root = document.documentElement;
+            
+            // 应用 SEO
+            document.title = APP_DATA.seo.title;
+            const metaDesc = document.querySelector('meta[name="description"]') || document.createElement('meta');
+            metaDesc.name = "description"; metaDesc.content = APP_DATA.seo.description;
+            document.head.appendChild(metaDesc);
+            
+            const metaKey = document.querySelector('meta[name="keywords"]') || document.createElement('meta');
+            metaKey.name = "keywords"; metaKey.content = APP_DATA.seo.keywords;
+            document.head.appendChild(metaKey);
+
+            document.getElementById('dynamic-favicon').href = APP_DATA.seo.favicon;
+            document.getElementById('dynamic-apple-icon').href = APP_DATA.seo.favicon;
+
+            // 应用 CSS 变量
+            root.style.setProperty('--primary-font', APP_DATA.global.fontFamily);
+            
+            // Logo 样式
+            root.style.setProperty('--logo-size', APP_DATA.logo.size);
+            root.style.setProperty('--logo-weight', APP_DATA.logo.weight);
+            root.style.setProperty('--logo-color', APP_DATA.logo.color);
+            document.getElementById('site-logo').innerText = APP_DATA.logo.text;
+            document.getElementById('site-logo').href = APP_DATA.logo.url;
+
+            // 导航样式
+            root.style.setProperty('--nav-link-size', APP_DATA.nav.size);
+            root.style.setProperty('--nav-link-weight', APP_DATA.nav.weight);
+            root.style.setProperty('--nav-link-color', APP_DATA.nav.color);
+
+            // 列表样式
+            root.style.setProperty('--item-title-size', APP_DATA.contacts.size);
+            root.style.setProperty('--item-title-weight', APP_DATA.contacts.weight);
+            if(APP_DATA.contacts.color) root.style.setProperty('--item-title-color', APP_DATA.contacts.color);
+
+            // 页脚样式
+            root.style.setProperty('--footer-size', APP_DATA.footer.size);
+            root.style.setProperty('--footer-color', APP_DATA.footer.color);
+            document.getElementById('year').innerText = new Date().getFullYear();
+            document.getElementById('footer-copy-text').innerText = APP_DATA.footer.copyText;
+            document.getElementById('footer-logo-link').href = APP_DATA.footer.copyUrl;
+            document.getElementById('footer-extra-info').innerText = APP_DATA.footer.extraText;
+
+            // 渲染动态链接
+            const dLinks = document.getElementById('desktop-links');
+            const mMenu = document.getElementById('mobile-menu');
+            APP_DATA.nav.links.forEach(link => {
+                const a = document.createElement('a');
+                a.href = link.url; a.innerText = link.name;
+                dLinks.appendChild(a.cloneNode(true));
+                const ma = a.cloneNode(true);
+                ma.onclick = () => document.getElementById('mobile-menu').classList.remove('active');
+                mMenu.appendChild(ma);
+            });
+
+            const cContainer = document.getElementById('contacts-container');
+            APP_DATA.contacts.items.forEach(item => {
+                const a = document.createElement('a');
+                a.href = item.url; a.className = "contact-item"; a.innerText = item.name;
+                cContainer.appendChild(a);
+            });
+        }
+
         const menuToggle = document.getElementById('menu-toggle');
         const mobileMenu = document.getElementById('mobile-menu');
-
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 10) mainNav.classList.add('scrolled');
-            else mainNav.classList.remove('scrolled');
-        });
-
-        function toggleMenu() {
+        menuToggle.onclick = () => {
             const isActive = mobileMenu.classList.toggle('active');
             const spans = menuToggle.querySelectorAll('span');
-            if(isActive) {
-                spans[0].style.transform = "rotate(45deg) translateY(4px)";
-                spans[1].style.transform = "rotate(-45deg) translateY(-4px)";
-                document.body.style.overflow = 'hidden';
-            } else {
-                spans[0].style.transform = "none";
-                spans[1].style.transform = "none";
-                document.body.style.overflow = '';
-            }
-        }
+            spans[0].style.transform = isActive ? "rotate(45deg) translateY(4px)" : "none";
+            spans[1].style.transform = isActive ? "rotate(-45deg) translateY(-4px)" : "none";
+            document.body.style.overflow = isActive ? 'hidden' : '';
+        };
 
-        menuToggle.addEventListener('click', toggleMenu);
-
-        function renderContacts() {
-            const container = document.getElementById('contacts-container');
-            container.innerHTML = "";
-            CONTACTS_DATA.forEach(item => {
-                const link = document.createElement('a');
-                link.href = item.url;
-                link.className = "contact-item";
-                link.innerText = item.name;
-                container.appendChild(link);
-            });
-        }
-
-        function renderBackground() {
+        async function renderBackground() {
             const bgContainer = document.getElementById('bg-container');
-            if (CONFIG.videoUrl) {
-                const video = document.createElement('video');
-                video.className = "bg-video";
-                video.muted = true;
-                video.loop = true;
-                video.autoplay = true;
-                video.playsInline = true;
-                video.setAttribute('muted', ''); // 强制属性静音以触发自动播放
+            if (!APP_DATA.background.videoUrl) return;
+            const video = document.createElement('video');
+            video.className = "bg-video";
+            video.muted = true; video.loop = true; video.autoplay = true;
+            video.setAttribute('muted', ''); video.setAttribute('playsinline', 'true');
+            video.src = APP_DATA.background.videoUrl;
+            video.onplaying = () => video.classList.add('playing');
+            bgContainer.appendChild(video);
 
-                // 播放成功后再淡入，避免白闪
-                video.onplaying = () => video.classList.add('playing');
-                
-                video.onerror = () => {
-                    console.warn("Video failed to load, using gradient.");
-                    bgContainer.innerHTML = `<div class="bg-gradient"></div>`;
-                };
-
-                const source = document.createElement('source');
-                source.src = CONFIG.videoUrl;
-                source.type = "video/mp4";
-                video.appendChild(source);
-                bgContainer.appendChild(video);
-            } else {
-                bgContainer.innerHTML = `<div class="bg-gradient"></div>`;
+            if (APP_DATA.background.enableCompatibilityMode) {
+                document.addEventListener('touchstart', () => video.play(), { once: true });
             }
         }
 
-        function applyDynamicUI() {
-            const root = document.documentElement;
-            root.style.setProperty('--primary-font', UI_CONFIG.primaryFont);
-            root.style.setProperty('--logo-size', UI_CONFIG.logoSize);
-            root.style.setProperty('--nav-link-size', UI_CONFIG.navLinksSize);
-            root.style.setProperty('--item-title-size', UI_CONFIG.itemTitleSize);
-        }
-
-        function init() {
-            applyDynamicUI(); 
-            document.title = CONFIG.pageTitle;
-
-            const favEl = document.getElementById('dynamic-favicon');
-            const appleFavEl = document.getElementById('dynamic-apple-icon');
-            if(favEl) favEl.href = CONFIG.faviconUrl;
-            if(appleFavEl) appleFavEl.href = CONFIG.faviconUrl;
-
-            document.getElementById('site-logo').innerText = CONFIG.logoText;
-            document.getElementById('site-logo').href = CONFIG.logoUrl;
-            document.getElementById('footer-copy-text').innerText = CONFIG.footerText;
-            document.getElementById('footer-logo-link').href = CONFIG.footerUrl;
-            
-            document.getElementById('footer-extra-info').innerText = CONFIG.footerExtra;
-
-            const desktop = document.getElementById('desktop-links');
-            const mobile = document.getElementById('mobile-menu');
-            desktop.innerHTML = ""; mobile.innerHTML = "";
-
-            CONFIG.links.forEach(link => {
-                const isCurrent = link.url === CONFIG.currentPageUrl;
-                const dLink = document.createElement('a');
-                dLink.href = link.url; dLink.innerText = link.name;
-                if(isCurrent) dLink.style.opacity = "0.3";
-                desktop.appendChild(dLink);
-
-                const mLink = document.createElement('a');
-                mLink.href = link.url; mLink.innerText = link.name;
-                mLink.onclick = toggleMenu;
-                mobile.appendChild(mLink);
-            });
-
-            document.getElementById('year').innerText = new Date().getFullYear();
-            renderContacts();
+        window.onload = () => {
+            applyConfigs();
             renderBackground();
-        }
-        window.addEventListener('load', init);
+        };
     </script>
 </body>
 </html>
